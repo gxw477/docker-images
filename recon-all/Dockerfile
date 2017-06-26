@@ -28,7 +28,8 @@ RUN yum update -y && yum -y install \
         wget \
         zip \
         && \
-    yum clean all
+    yum clean all & \
+    pip install docopt
 RUN wget -N -qO- ftp://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/5.3.0/freesurfer-Linux-centos6_x86_64-stable-pub-v5.3.0.tar.gz | tar -xzv -C /opt \
         --exclude='freesurfer/trctrain' \
         --exclude='freesurfer/subjects/fsaverage_sym' \
@@ -44,8 +45,8 @@ RUN wget -N -qO- ftp://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/5.3.0/free
         --exclude='freesurfer/lib/cuda' \
         --exclude='freesurfer/lib/qt'
 
-# Configure license
 COPY license /opt/freesurfer/.license
+COPY stats2xml_fs5.3.pl /usr/local/bin
 
 # Configure basic freesurfer ENV
 ENV OS=Linux \
