@@ -1,0 +1,119 @@
+{
+    "name": "fs-stats-to-xml",
+    "label": "Freesurfer assessor generator",
+    "description": "Generate an fs:fsData assessor from a Freesurfer v5.3.0 subject directory.",
+    "version": "1.0",
+    "schema-version": "1.0",
+    "type": "docker",
+    "command-line": "stats2xml_fs5.3.pl #PROJECT# #XNAT_ID# -t Freesurfer",
+/**/
+    "mounts": [
+        {
+            "name": "input",
+            "type": "input",
+            "path": "/input"
+        },
+        {
+            "name": "output",
+            "type": "output",
+            "path": "/output"
+        }
+    ],
+    "inputs": [
+        {
+            "name": "recon-all-args",
+            "description": "Arguments to pass to recon-all",
+            "default-value": "-all",
+            "replacement-key": "#RECON_ALL_ARGS#"
+        },
+        {
+            "name": "subject-id",
+            "description": "subject identifier",
+            "type": "string",
+            "required": true,
+            "replacement-key": "#SUBJECT_ID#",
+            "command-line-flag": "-s"
+        }
+    ],
+    "outputs": [
+        {
+            "name": "fs",
+            "mount": "output",
+            "path": "fs.xml"
+        },
+        {
+            "name": "data",
+            "mount": "output",
+            "path": "#SUBJECT_ID#"
+        }
+    ],
+    "xnat": [
+        {
+            "name": "freesurfer-session",
+            "description": "Freesurfer 5.3 on a session",
+            "contexts": ["xnat:imageSessionData"],
+            "external-inputs": [
+                {
+                    "name": "session",
+                    "description": "Input session",
+                    "type": "Session",
+                    "required": true
+                },
+                {
+                    "name": "T1-scantype",
+                    "description": "Scantype of T1 scans",
+                    "type": "Config",
+                    "parent": "project",
+                    "default-value": "pipelines/mr_scan_types"
+                }
+            ],
+            "derived-inputs": [
+                {
+                    "name": "label",
+                    "description": "Session label. Used as Freesurfer subject identifier.",
+                    "type": "string",
+                    "required": true,
+                    "derived-from-xnat-input": "session",
+                    "derived-from-xnat-object-property": "label",
+                    "provides-value-for-command-input": "session-id"
+                },
+                {
+                    "name": "project",
+                    "description": "Project in which session is stored",
+                    "type": "Project",
+                    "parent": "session"
+                },
+                {
+                    "name": "T1",
+                    "description": "Input T1 scan",
+                    "type": "Scan",
+                    "derived-from-xnat-input": "session",
+                    "matcher": "@.scan-type in [^wrapper:$.external-inputs[?(@.name == 'T1-scantype')].value^]"
+                },
+                {
+                    "name": "resource",
+                    "description": "Input resource: DICOM or NIFTI",
+                    "type": "Resource",
+                    "derived-from-xnat-input": "T1",
+                    "matcher": "@.label in [\"DICOM\", \"NIFTI\"]",
+                    "provides-files-for-command-mount": "input"
+                }
+            ],
+            "output-handlers": [
+                {
+                    "name": "fs-assessor",
+                    "type": "Assessor",
+                    "accepts-command-output": "fs",
+                    "as-a-child-of-xnat-input": "session"
+                },
+                {
+                    "name": "data-resource",
+                    "accepts-command-output": "data",
+                    "as-a-child-of-xnat-output": "fs",
+                    "type": "Resource",
+                    "label": "DATA",
+                }
+            ]
+        }
+    ]
+}
