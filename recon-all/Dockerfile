@@ -28,8 +28,7 @@ RUN yum update -y && yum -y install \
         wget \
         zip \
         && \
-    yum clean all & \
-    pip install docopt
+    yum clean all
 RUN wget -N -qO- ftp://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/5.3.0/freesurfer-Linux-centos6_x86_64-stable-pub-v5.3.0.tar.gz | tar -xzv -C /opt \
         --exclude='freesurfer/trctrain' \
         --exclude='freesurfer/subjects/fsaverage_sym' \
