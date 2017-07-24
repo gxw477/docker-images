@@ -6,7 +6,7 @@
 use strict;
 use Getopt::Long;
 
-use lib "@PIPELINE_DIR_PATH@/catalog/Freesurfer/resources/fs2xml";
+use lib "/usr/local/bin/fs2xml";
 require FreeSurfer::Stats;
 
 my $VC_ID = '$Id: stats2xml.pl,v 1.6 2014/01/13 16:22:00 jflavin Exp $';
